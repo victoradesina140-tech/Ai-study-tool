@@ -1,30 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>medstudy</title>
-    <link rel="stylesheet" href="ai.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
-    <script src="https://www.googletagmanager.com/gtag/js?1=dataLayer&id=G-HGK69HKHN4" async></script>
-    <title>medstudy </title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedEssay — Medical Short Answer Practice</title>
+  <link rel="stylesheet" href="ai.css">
+  <script src="theme.js"></script>
 </head>
 <body>
-    <div class="container flex-column flex-center">
-        <nav>
-            <h1>MedStudy</h1>
-        </nav>
-        <div class="facts">
-            <h2>Daily Facts</h2>
+  <div class="container">
+    <div id="home" class="flex-center flex-column">
+
+      <div class="brand">
+        <h1>Med<span>Essay</span></h1>
+        <p class="tagline">Master the written side of medicine</p>
+      </div>
+
+      <div class="subject-badges">
+        <span class="badge">Anatomy</span>
+        <span class="badge">Physiology</span>
+        <span class="badge">Biochemistry</span>
+      </div>
+
+      <div class="btn-group">
+        <a class="btn btn-primary" href="sub.html">Start Practice</a>
+        <a class="btn btn-secondary" href="scores.html">High Scores</a>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat">
+          <span class="stat-number" id="total-attempted">0</span>
+          <span class="stat-label">Attempted</span>
         </div>
-        <div class="courses">
-            <h2>Courses</h2>
+        <div class="stat">
+          <span class="stat-number" id="total-score">—</span>
+          <span class="stat-label">Avg Score</span>
         </div>
+        <div class="stat">
+          <span class="stat-number" id="streak">0</span>
+          <span class="stat-label">Day Streak</span>
         </div>
-        <footer>
-            <div class="footer flex-center">
-                <p>&copy; 2024 medstudy. All rights reserved.</p>
-            </div>
-        </footer>
+      </div>
+
     </div>
+  </div>
+  <script src="ai.js"></script>
 </body>
+</html>

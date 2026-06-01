@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedEssay — High Scores</title>
+  <link rel="stylesheet" href="ai.css">
+  <script src="theme.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="scores-screen flex-column">
+
+      <a href="ai.html" class="back-btn">← Home</a>
+      <h2>High Scores</h2>
+
+      <div class="score-tabs">
+        <button class="tab-btn active" data-filter="all">All</button>
+        <button class="tab-btn" data-filter="anatomy">Anatomy</button>
+        <button class="tab-btn" data-filter="physiology">Physiology</button>
+        <button class="tab-btn" data-filter="biochemistry">Biochemistry</button>
+      </div>
+
+      <div class="scores-table">
+        <div class="scores-header">
+          <span>#</span>
+          <span>Topic</span>
+          <span>Score</span>
+          <span>Date</span>
+        </div>
+        <div class="scores-list" id="scores-list">
+          <div class="no-scores" id="no-scores">No scores yet. Start practising! 💪</div>
+        </div>
+      </div>
+
+      <button class="btn btn-danger" id="clear-scores-btn">Clear All Scores</button>
+
+    </div>
+  </div>
+  <script src="scores.js"></script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedEssay — Answer Question</title>
+  <link rel="stylesheet" href="ai.css">
+  <script src="theme.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="quiz-screen flex-column">
+
+      <div class="quiz-topbar">
+        <a href="sub.html" class="back-btn">← Change Topic</a>
+        <div class="quiz-meta">
+          <span class="meta-tag" id="display-subject">Physiology</span>
+          <span class="meta-tag" id="display-topic">Respiratory</span>
+          <span class="meta-tag tone-tag" id="display-tone">Friendly Mode</span>
+        </div>
+        <span class="marks-tag" id="display-marks">6 marks</span>
+      </div>
+
+      <!-- Loading (shown first) -->
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Generating your question…</p>
+      </div>
+
+      <!-- Question (hidden until ready) -->
+      <div class="question-box hidden" id="question-box">
+        <p class="question-label">Question</p>
+        <p id="question-text"></p>
+      </div>
+
+      <!-- Answer (hidden until ready) -->
+      <div class="answer-area hidden" id="answer-area">
+        <label for="student-answer" class="answer-label">Your Answer</label>
+        <textarea
+          id="student-answer"
+          class="answer-input"
+          placeholder="Write your answer here. Structure your thoughts clearly — define, explain, elaborate…"
+          rows="12"
+        ></textarea>
+        <div class="answer-footer">
+          <span id="word-count">0 words</span>
+          <span class="answer-hint">Tip: Aim for depth over length.</span>
+        </div>
+      </div>
+
+      <!-- Actions (hidden until ready) -->
+      <div class="quiz-actions hidden" id="quiz-actions">
+        <button class="btn btn-secondary" id="clear-btn">Clear</button>
+        <button class="btn btn-primary" id="submit-btn">Submit Answer →</button>
+      </div>
+
+    </div>
+  </div>
+  <script src="quiz.js"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedEssay — Choose Subject</title>
+  <link rel="stylesheet" href="ai.css">
+  <script src="theme.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="selection-screen flex-column">
+
+      <a href="ai.html" class="back-btn">← Back</a>
+
+      <!-- STEP 1: Subject -->
+      <div class="step" id="step-subject">
+        <h2>Choose a Subject</h2>
+        <div class="card-grid">
+          <div class="subject-card" data-subject="anatomy">
+            <span class="card-icon">🦴</span>
+            <h3>Anatomy</h3>
+            <p>Regional, Neuro, Histo &amp; Embryo</p>
+          </div>
+          <div class="subject-card" data-subject="physiology">
+            <span class="card-icon">⚡</span>
+            <h3>Physiology</h3>
+            <p>CVS, Respiratory, Renal, GIT &amp; more</p>
+          </div>
+          <div class="subject-card" data-subject="biochemistry">
+            <span class="card-icon">🧪</span>
+            <h3>Biochemistry</h3>
+            <p>Metabolism, Molecular, Cellular &amp; more</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Topic -->
+      <div class="step hidden" id="step-topic">
+        <h2>Choose a Topic</h2>
+        <div class="topic-list" id="topic-list"></div>
+      </div>
+
+      <!-- STEP 3: Tone -->
+      <div class="step hidden" id="step-tone">
+        <h2>Choose Your Feedback Tone</h2>
+        <div class="card-grid">
+          <div class="tone-card" data-tone="friendly">
+            <span class="card-icon">😊</span>
+            <h3>Friendly Mode</h3>
+            <p>Warm, encouraging feedback like a senior colleague</p>
+          </div>
+          <div class="tone-card" data-tone="strict">
+            <span class="card-icon">🎓</span>
+            <h3>Strict Mode</h3>
+            <p>Direct, examiner-style feedback. No sugar coating.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4: Marks -->
+      <div class="step hidden" id="step-marks">
+        <h2>Mark Allocation</h2>
+        <p class="step-hint">How many marks is this question worth?</p>
+        <div class="marks-selector">
+          <button class="mark-btn" data-marks="2">2 marks</button>
+          <button class="mark-btn" data-marks="4">4 marks</button>
+          <button class="mark-btn" data-marks="6">6 marks</button>
+          <button class="mark-btn" data-marks="10">10 marks</button>
+          <button class="mark-btn" data-marks="15">15 marks</button>
+          <button class="mark-btn" data-marks="20">20 marks</button>
+        </div>
+        <button class="btn btn-primary hidden" id="proceed-btn">Start Question →</button>
+      </div>
+
+    </div>
+  </div>
+  <script src="sub.js"></script>
+</body>
+</html>

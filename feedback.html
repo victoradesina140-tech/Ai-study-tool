@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedEssay — Feedback</title>
+  <link rel="stylesheet" href="ai.css">
+  <script src="theme.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="feedback-screen flex-column">
+
+      <!-- Loading (shown first) -->
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Evaluating your answer…</p>
+      </div>
+
+      <!-- Score Banner -->
+      <div class="score-banner hidden" id="score-banner">
+        <p class="score-label">Your Score</p>
+        <h1 class="score-display">
+          <span id="score-earned">0</span>
+          <span class="score-slash">/</span>
+          <span id="score-total">6</span>
+        </h1>
+        <p class="score-summary" id="score-summary"></p>
+      </div>
+
+      <!-- Feedback Cards -->
+      <div class="feedback-body hidden" id="feedback-body">
+
+        <div class="feedback-card correct">
+          <div class="feedback-card-header">
+            <span class="feedback-icon">✅</span>
+            <h3>What You Got Right</h3>
+          </div>
+          <div class="feedback-content" id="feedback-correct"></div>
+        </div>
+
+        <div class="feedback-card missed">
+          <div class="feedback-card-header">
+            <span class="feedback-icon">❌</span>
+            <h3>What You Missed</h3>
+          </div>
+          <div class="feedback-content" id="feedback-missed"></div>
+        </div>
+
+        <div class="feedback-card vague">
+          <div class="feedback-card-header">
+            <span class="feedback-icon">⚠️</span>
+            <h3>What Was Vague or Incomplete</h3>
+          </div>
+          <div class="feedback-content" id="feedback-vague"></div>
+        </div>
+
+        <div class="feedback-card checklist">
+          <div class="feedback-card-header">
+            <span class="feedback-icon">💡</span>
+            <h3>Key Concepts Checklist</h3>
+          </div>
+          <ul class="concept-list" id="concept-checklist"></ul>
+        </div>
+
+        <div class="motivation-line" id="motivation-line"></div>
+
+        <!-- Model Answer (hidden by default) -->
+        <div class="feedback-card model hidden" id="model-answer-section">
+          <div class="feedback-card-header">
+            <span class="feedback-icon">📖</span>
+            <h3>Model Answer</h3>
+          </div>
+          <div class="feedback-content" id="model-answer-content"></div>
+        </div>
+
+      </div>
+
+      <!-- Actions -->
+      <div class="feedback-actions hidden" id="feedback-actions">
+        <button class="btn btn-secondary" id="model-answer-btn">Show Model Answer</button>
+        <button class="btn btn-secondary" id="try-again-btn">Try Again</button>
+        <a href="sub.html" class="btn btn-primary">Next Question →</a>
+      </div>
+
+    </div>
+  </div>
+  <script src="feedback.js"></script>
+</body>
+</html>
