@@ -6,7 +6,14 @@ const fetch   = require('node-fetch')
 const app    = express()
 const PORT   = 3000
 const APIKEY = process.env.GEMINI_API_KEY
-const MODEL  = 'gemini-2.5-flash'
+const MODEL  = 'gemini-flash-lite-latest'
+
+// Debug: Check if API key is loaded
+if (!APIKEY) {
+  console.warn('⚠️  GEMINI_API_KEY not set in environment!')
+} else {
+  console.log('✓ API key loaded (length:', APIKEY.length, ')')
+}
 
 app.use(cors())
 app.use(express.json())
@@ -53,5 +60,5 @@ app.post('/api/claude', async (req, res) => {
 })
 
 app.listen(PORT, () => {
-  console.log(`\n✅ MedEssay running at http://localhost:${PORT}/ai.html\n`)
+  console.log(`\n✅ MedEssay running at http://localhost:${PORT}/ (index.html)\n`)
 })

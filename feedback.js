@@ -173,9 +173,12 @@ function extract(text, header) {
 }
 
 function toHTML(text) {
-  return text.split('\n').filter(l => l.trim()).map(l => `<p>${l.trim()}</p>`).join('')
+  // Parse markdown and sanitize HTML
+  const html = marked.parse(text)
+  return html
 }
 
 function toChecklist(text) {
-  return text.split('\n').filter(l => l.trim()).map(l => `<li>${l.trim()}</li>`).join('')
+  const html = marked.parse(text)
+  return html.replace(/<\/?p>/g, '')
 }
