@@ -5,8 +5,8 @@ const fetch   = require('node-fetch')
 
 const app    = express()
 const PORT   = 3000
-const APIKEY = 'AIzaSyDH7n42SBw0BLeMYv5sThOY10wCyPAlhj0'
-const MODEL  = 'gemini-2.0-flash'
+const APIKEY = process.env.GEMINI_API_KEY
+const MODEL  = 'gemini-2.5-flash'
 
 app.use(cors())
 app.use(express.json())
