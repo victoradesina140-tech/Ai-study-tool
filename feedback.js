@@ -33,7 +33,7 @@ RESPOND IN THIS EXACT FORMAT — keep headers exactly as written:
 [one-line performance summary]
 
 ### 💬 Motivation
-[one personalised motivating sentence based on their performance]
+[one personalised motivating sentence based on their performance and mode selected]
 
 ${answer === '' ? 'BLANK ANSWER: Provide the model answer immediately and gently ask why it was left blank.' : 'NEVER show model answer unless the student explicitly asks.'}`
 
