@@ -1,0 +1,13 @@
+[build]
+command = "echo 'Deploying AI Study Tool'"
+publish = "."
+
+[functions]
+directory = "netlify/functions"
+node_bundler = "esbuild"
+
+[[redirects]]
+from = "/api/claude"
+to = "/.netlify/functions/api"
+status = 200
+force = true
