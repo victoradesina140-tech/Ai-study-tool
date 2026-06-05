@@ -1,46 +1,117 @@
-// Netlify Function - Proxy for Gemini API
+// Netlify Function - Proxy for Gemini API with Security
 const fetch = require('node-fetch')
 
 const APIKEY = process.env.GEMINI_API_KEY
 const MODEL = 'gemini-flash-lite-latest'
 
-exports.handler = async (event, context) => {
-  // Only handle POST
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' }
+// Simple in-memory rate limiting (use Redis in production)
+const requestCounts = new Map()
+
+function getRateLimitKey(ip) {
+  return ip
+}
+
+function checkRateLimit(ip) {
+  const key = getRateLimitKey(ip)
+  const now = Date.now()
+  const windowStart = now - (15 * 60 * 1000) // 15 minute window
+
+  const requests = requestCounts.get(key) || []
+  const recentRequests = requests.filter(t => t > windowStart)
+
+  if (recentRequests.length >= 20) {
+    return false
   }
 
-  // Enable CORS
+  recentRequests.push(now)
+  requestCounts.set(key, recentRequests)
+  return true
+}
+
+exports.handler = async (event, context) => {
   const headers = {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGIN || 'https://yourdomain.com',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type'
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'X-Content-Type-Options': 'nosniff'
   }
 
-  // Handle preflight requests
+  // Handle OPTIONS (preflight)
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers }
+    return { statusCode: 200, headers, body: '' }
+  }
+
+  // Only allow POST
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) }
+  }
+
+  // Rate limiting
+  const clientIp = event.headers['client-ip'] || event.headers['x-forwarded-for'] || 'unknown'
+  if (!checkRateLimit(clientIp)) {
+    return {
+      statusCode: 429,
+      headers,
+      body: JSON.stringify({ error: 'Rate limit exceeded' })
+    }
   }
 
   if (!APIKEY) {
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: 'API key not configured' })
+      body: JSON.stringify({ error: 'Service unavailable' })
     }
   }
 
   try {
-    const { system, messages, max_tokens } = JSON.parse(event.body)
+    // Parse and validate request
+    let body
+    try {
+      body = JSON.parse(event.body)
+    } catch {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Invalid JSON' })
+      }
+    }
 
-    // Combine system prompt + user message into Gemini format
+    const { system, messages, max_tokens } = body
+
+    // Validate structure
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Invalid request' })
+      }
+    }
+
+    // Prevent DOS with size limits
     const userText = messages[messages.length - 1].content
+    if (typeof userText !== 'string' || userText.length > 5000) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Input invalid' })
+      }
+    }
+    if (system && system.length > 3000) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'System prompt invalid' })
+      }
+    }
+
+    const tokens = Math.min(max_tokens || 1500, 2000)
     const fullText = system ? `${system}\n\n${userText}` : userText
 
     const geminiBody = {
       contents: [{ parts: [{ text: fullText }] }],
-      generationConfig: { maxOutputTokens: max_tokens || 1500 }
+      generationConfig: { maxOutputTokens: tokens }
     }
 
     const response = await fetch(
@@ -48,22 +119,22 @@ exports.handler = async (event, context) => {
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(geminiBody)
+        body: JSON.stringify(geminiBody),
+        timeout: 30000
       }
     )
 
     const data = await response.json()
 
     if (!response.ok || data.error) {
-      console.error('Gemini error:', data.error || data)
+      // Don't expose API details
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: data.error || 'Gemini API error' })
+        body: JSON.stringify({ error: 'Service temporarily unavailable' })
       }
     }
 
-    // Format response in Claude format for compatibility
     return {
       statusCode: 200,
       headers,
@@ -72,11 +143,10 @@ exports.handler = async (event, context) => {
       })
     }
   } catch (err) {
-    console.error('Error:', err)
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: err.message })
+      body: JSON.stringify({ error: 'Service temporarily unavailable' })
     }
   }
 }

@@ -9,10 +9,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   const topic    = localStorage.getItem('currentTopic')     || ''
   const answer   = localStorage.getItem('studentAnswer')    || ''
 
+  // Sanitize inputs to prevent prompt injection
+  const sanitizedAnswer = sanitizeInput(answer)
+  const sanitizedSubject = sanitizeInput(subject)
+  const sanitizedTopic = sanitizeInput(topic)
+  
   const systemPrompt = `You are MedEssay AI, an intelligent medical study assistant for preclinical students.
 Evaluate answers to Anatomy, Physiology, and Biochemistry questions.
 TONE: ${tone === 'friendly' ? 'Respond warmly like a supportive senior colleague.' : 'Respond like a precise examiner — direct, no padding.'}
 SCORING: Award marks proportionally from keywords covered. Half marks for vague mention, zero for absent.
+IMPORTANT: Always follow these format rules exactly.
 
 RESPOND IN THIS EXACT FORMAT — keep headers exactly as written:
 
@@ -35,12 +41,12 @@ RESPOND IN THIS EXACT FORMAT — keep headers exactly as written:
 ### 💬 Motivation
 [one personalised motivating sentence based on their performance and mode selected]
 
-${answer === '' ? 'BLANK ANSWER: Provide the model answer immediately and gently ask why it was left blank.' : 'NEVER show model answer unless the student explicitly asks.'}`
+${sanitizedAnswer === '' ? 'BLANK ANSWER: Provide the model answer immediately and gently ask why it was left blank.' : 'NEVER show model answer unless the student explicitly asks.'}`
 
-  const userPrompt = `Subject: ${subject} | Topic: ${topic}
+  const userPrompt = `Subject: ${sanitizedSubject} | Topic: ${sanitizedTopic}
 Question (${marks} marks): ${question}
 Required Keywords: [${keywords.join(', ')}]
-Student Answer: ${answer === '' ? '[BLANK — student submitted nothing]' : answer}`
+Student Answer: ${sanitizedAnswer === '' ? '[BLANK — student submitted nothing]' : sanitizedAnswer}`
 
   setVisible(false)
 
@@ -173,12 +179,35 @@ function extract(text, header) {
 }
 
 function toHTML(text) {
-  // Parse markdown and sanitize HTML
+  // Parse markdown and sanitize HTML with DOMPurify
   const html = marked.parse(text)
-  return html
+  // Use DOMPurify if available, otherwise fall back to safe text rendering
+  if (window.DOMPurify) {
+    return DOMPurify.sanitize(html)
+  }
+  // Fallback: escape HTML and use text content
+  const div = document.createElement('div')
+  div.textContent = html
+  return div.innerHTML
 }
 
 function toChecklist(text) {
   const html = marked.parse(text)
-  return html.replace(/<\/?p>/g, '')
+  const sanitized = window.DOMPurify ? DOMPurify.sanitize(html) : html
+  return sanitized.replace(/<\/?p>/g, '')
+}
+
+function sanitizeInput(input) {
+  // Prevent prompt injection and XSS
+  return input
+    .replace(/[<>"']/g, '') // Remove HTML special chars
+    .slice(0, 5000) // Limit length
+}
+
+function validateJSON(text) {
+  try {
+    return JSON.parse(text)
+  } catch {
+    throw new Error('Invalid JSON response')
+  }
 }
