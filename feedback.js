@@ -9,27 +9,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   const topic    = localStorage.getItem('currentTopic')     || ''
   const answer   = localStorage.getItem('studentAnswer')    || ''
 
-  // Sanitize inputs to prevent prompt injection
-  const sanitizedAnswer = sanitizeInput(answer)
-  const sanitizedSubject = sanitizeInput(subject)
-  const sanitizedTopic = sanitizeInput(topic)
-  
   const systemPrompt = `You are MedEssay AI, an intelligent medical study assistant for preclinical students.
 Evaluate answers to Anatomy, Physiology, and Biochemistry questions.
 TONE: ${tone === 'friendly' ? 'Respond warmly like a supportive senior colleague.' : 'Respond like a precise examiner — direct, no padding.'}
 SCORING: Award marks proportionally from keywords covered. Half marks for vague mention, zero for absent.
-IMPORTANT: Always follow these format rules exactly.
+IMPORTANT: Respond in plain text only. Do NOT use HTML tags. Use simple bullet points with - or numbers.
 
 RESPOND IN THIS EXACT FORMAT — keep headers exactly as written:
 
 ### ✅ What You Got Right
-[list correct points clearly]
+[list correct points clearly, one per line]
 
 ### ❌ What You Missed
-[list missing key concepts and why they matter clinically]
+[list missing key concepts and why they matter clinically, one per line]
 
 ### ⚠️ What Was Vague or Incomplete
-[list vague points and what precision was needed]
+[list vague points and what precision was needed, one per line]
 
 ### 💡 Key Concepts Checklist
 [each keyword on its own line as: ✅ concept / ⚠️ concept / ❌ concept]
@@ -41,12 +36,12 @@ RESPOND IN THIS EXACT FORMAT — keep headers exactly as written:
 ### 💬 Motivation
 [one personalised motivating sentence based on their performance and mode selected]
 
-${sanitizedAnswer === '' ? 'BLANK ANSWER: Provide the model answer immediately and gently ask why it was left blank.' : 'NEVER show model answer unless the student explicitly asks.'}`
+${answer === '' ? 'BLANK ANSWER: Provide the model answer immediately and gently ask why it was left blank.' : 'NEVER show model answer unless the student explicitly asks.'}`
 
-  const userPrompt = `Subject: ${sanitizedSubject} | Topic: ${sanitizedTopic}
+  const userPrompt = `Subject: ${subject} | Topic: ${topic}
 Question (${marks} marks): ${question}
 Required Keywords: [${keywords.join(', ')}]
-Student Answer: ${sanitizedAnswer === '' ? '[BLANK — student submitted nothing]' : sanitizedAnswer}`
+Student Answer: ${answer === '' ? '[BLANK — student submitted nothing]' : answer.slice(0, 3000)}`
 
   setVisible(false)
 
@@ -57,7 +52,7 @@ Student Answer: ${sanitizedAnswer === '' ? '[BLANK — student submitted nothing
     console.error('Feedback API error:', err)
     setVisible(true)
     document.getElementById('feedback-correct').innerHTML =
-      '<p style="color:var(--red)">⚠️ Could not load feedback. Make sure the server is running (<code>node server.js</code>) and try again.</p>'
+      '<p style="color:var(--red)">⚠️ Could not load feedback. Please try again.</p>'
   }
 
   function parseAndDisplay(text) {
@@ -110,9 +105,11 @@ Student Answer: ${sanitizedAnswer === '' ? '[BLANK — student submitted nothing
 "${question}"
 Required key concepts: ${keywords.join(', ')}.
 Write a well-structured, accurate, exam-ready answer for a preclinical medical student.
-Use clear paragraphs. Include all key concepts, mechanisms, and clinical significance where relevant.`,
+Use clear paragraphs. Do NOT use HTML tags. Use plain text with clear headings using dashes or numbers.
+Include all key concepts, mechanisms, and clinical significance where relevant.`,
         maxTokens: 1200
       })
+      // Model answer renders as plain text converted to paragraphs
       document.getElementById('model-answer-content').innerHTML = toHTML(text)
       section.classList.remove('hidden')
       section.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -158,7 +155,7 @@ async function callClaude({ system, prompt, maxTokens = 1500 }) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model:      'claude-sonnet-4-20250514',
+      model:      'gemini-2.0-flash',
       max_tokens: maxTokens,
       ...(system && { system }),
       messages: [{ role: 'user', content: prompt }]
@@ -178,36 +175,33 @@ function extract(text, header) {
   return (nextHead === -1 ? text.slice(lineEnd) : text.slice(lineEnd, nextHead)).trim()
 }
 
+// Converts plain text to styled HTML — no markdown library needed
 function toHTML(text) {
-  // Parse markdown and sanitize HTML with DOMPurify
-  const html = marked.parse(text)
-  // Use DOMPurify if available, otherwise fall back to safe text rendering
-  if (window.DOMPurify) {
-    return DOMPurify.sanitize(html)
-  }
-  // Fallback: escape HTML and use text content
-  const div = document.createElement('div')
-  div.textContent = html
-  return div.innerHTML
+  return text
+    .split('\n')
+    .filter(l => l.trim())
+    .map(line => {
+      line = line.trim()
+      // Bold **text** or *text*
+      line = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      line = line.replace(/\*(.+?)\*/g, '<em>$1</em>')
+      // Bullet points
+      if (/^[-•]/.test(line)) {
+        return `<p style="padding-left:1.2rem">• ${line.replace(/^[-•]\s*/, '')}</p>`
+      }
+      // Numbered lines
+      if (/^\d+\./.test(line)) {
+        return `<p style="padding-left:1.2rem">${line}</p>`
+      }
+      return `<p>${line}</p>`
+    })
+    .join('')
 }
 
 function toChecklist(text) {
-  const html = marked.parse(text)
-  const sanitized = window.DOMPurify ? DOMPurify.sanitize(html) : html
-  return sanitized.replace(/<\/?p>/g, '')
-}
-
-function sanitizeInput(input) {
-  // Prevent prompt injection and XSS
-  return input
-    .replace(/[<>"']/g, '') // Remove HTML special chars
-    .slice(0, 5000) // Limit length
-}
-
-function validateJSON(text) {
-  try {
-    return JSON.parse(text)
-  } catch {
-    throw new Error('Invalid JSON response')
-  }
+  return text
+    .split('\n')
+    .filter(l => l.trim())
+    .map(l => `<li>${l.trim()}</li>`)
+    .join('')
 }
