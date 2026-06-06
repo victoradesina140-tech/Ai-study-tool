@@ -18,6 +18,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('quiz-actions').classList.toggle('hidden', on)
   }
 
+  // ── Load previously asked questions for this topic ──
+  const historyKey      = `asked_${subject}_${topic}`.replace(/\s+/g, '_').toLowerCase()
+  const askedQuestions  = JSON.parse(localStorage.getItem(historyKey) || '[]')
+  const avoidSection    = askedQuestions.length > 0
+    ? `\n\nIMPORTANT: Do NOT repeat any of these previously asked questions:\n${askedQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}`
+    : ''
+
   try {
     const raw = await callClaude({
       system: `You are a medical examiner. Respond ONLY with valid JSON. No markdown, no code blocks, no explanation.`,
@@ -29,12 +36,17 @@ Return exactly this JSON structure (nothing else):
 Rules:
 - Question must be appropriate for a ${marks}-mark answer
 - Include at least ${Math.ceil(parseInt(marks) * 1.2)} specific medical keywords
-- Keywords must be precise medical terms required for full marks`,
+- Keywords must be precise medical terms required for full marks
+- Ask about a DIFFERENT aspect of ${topic} each time — vary between mechanisms, clinical application, anatomy, pathology, regulation${avoidSection}`,
       maxTokens: 600
     })
 
     const clean = raw.replace(/```json|```/g, '').trim()
     const { question, keywords } = JSON.parse(clean)
+
+    // ── Save question to history (keep last 20) ──
+    askedQuestions.unshift(question)
+    localStorage.setItem(historyKey, JSON.stringify(askedQuestions.slice(0, 20)))
 
     document.getElementById('question-text').textContent = question
     localStorage.setItem('currentQuestion', question)
@@ -79,7 +91,7 @@ async function callClaude({ system, prompt, maxTokens = 1000 }) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model:      'claude-sonnet-4-20250514',
+      model:      'gemini-flash-lite-latest',
       max_tokens: maxTokens,
       ...(system && { system }),
       messages: [{ role: 'user', content: prompt }]
