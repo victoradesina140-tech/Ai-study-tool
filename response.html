@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedEssay - Feedback Form</title>
+    <link rel="stylesheet" href="response.css">
+</head>
+<body>
+    
+</body>
+</html>
+<div class="flex-column feedback form-container" id="response">
+    <form action="https://formspree.io/f/mpqedlrk" method="POST">
+        <h2>Help Us <span>Improve</span></h2>
+
+        <div class="input-box">
+            <input type="text" id="username" name="name" required>
+            <span>Name</span>
+        </div>
+
+        <div class="input-box">
+            <input type="email" id="email" name="email">
+            <span>Email</span>
+        </div>
+
+        <div class="input-box">
+            <textarea id="feedback" name="feedback" rows="3" placeholder="Feedback" required></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn">Send Feedback</button>
+    </form>
+</div>
