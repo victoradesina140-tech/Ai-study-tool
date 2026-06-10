@@ -50,6 +50,7 @@ input:hover{
     font-size: 18px;
     border-bottom: 2px solid rgba(255, 255, 255, 0.5);
     transition: 0.4s;
+    font-family: 'Outfit', sans-serif;
 }
 
 .input-box input:focus{
@@ -101,6 +102,7 @@ input:hover{
   font-size: 16px;
   width: 100%;
   resize: vertical;
+  font-family: 'Outfit', sans-serif;
 }
 
 h2 span{
