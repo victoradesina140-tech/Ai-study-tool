@@ -6,11 +6,17 @@
     <title>MedEssay - Feedback Form</title>
     <link rel="stylesheet" href="response.css">
 </head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZHRQKJS5EN"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZHRQKJS5EN');
+</script>
 <body>
-    
-</body>
-</html>
-<div class="flex-column feedback form-container" id="response">
+    <div class="flex-column feedback form-container" id="response">
     <form action="https://formspree.io/f/mpqedlrk" method="POST">
         <h2>Help Us <span>Improve</span></h2>
 
@@ -31,3 +37,5 @@
         <button type="submit" class="submit-btn">Send Feedback</button>
     </form>
 </div>
+</body>
+</html>
