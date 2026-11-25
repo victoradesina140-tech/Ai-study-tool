@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const systemPrompt = `You are MedEssay AI, an intelligent medical study assistant for preclinical students.
 Evaluate answers to Anatomy, Physiology, and Biochemistry questions.
 TONE: ${tone === 'friendly' ? 'Respond warmly like a supportive senior colleague.' : 'Respond like a precise examiner — direct, no padding.'}
-SCORING: Award marks proportionally from keywords covered. Half marks for vague mention, zero for absent.
+SCORING: The question is worth exactly ${marks} marks and the score can never exceed ${marks}. Each required keyword is a marking point worth about one mark. Half marks for vague mention, zero for absent.
 IMPORTANT: Respond in plain text only. Do NOT use HTML tags. Use simple bullet points with - or numbers.
 
 RESPOND IN THIS EXACT FORMAT — keep headers exactly as written:
@@ -155,8 +155,7 @@ async function callClaude({ system, prompt, maxTokens = 1500 }) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model:      'gemini-2.0-flash',
-      max_tokens: maxTokens,
+            max_tokens: maxTokens,
       ...(system && { system }),
       messages: [{ role: 'user', content: prompt }]
     })

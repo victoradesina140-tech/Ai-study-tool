@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedEssay — MCQs</title>
+  <link rel="stylesheet" href="ai.css">
+  <script src="theme.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="quiz-screen flex-column">
+
+      <div class="quiz-topbar">
+        <a href="sub.html" class="back-btn">← Change Topic</a>
+        <div class="quiz-meta">
+          <span class="meta-tag" id="display-subject">Subject</span>
+          <span class="meta-tag" id="display-topic">Topic</span>
+        </div>
+        <span class="marks-tag" id="display-marks">20 marks</span>
+      </div>
+
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p id="loading-text">Setting your questions…</p>
+      </div>
+
+      <div class="mcq-error hidden" id="mcq-error">
+        <p id="mcq-error-text">Something went wrong.</p>
+        <button class="btn btn-primary" id="retry-btn">Try Again</button>
+      </div>
+
+      <div class="score-banner hidden" id="score-banner">
+        <p class="score-label">Your Score</p>
+        <h1 class="score-display">
+          <span id="score-earned">0</span><span class="score-slash">/</span><span id="score-total">0</span>
+        </h1>
+        <p class="score-summary" id="score-summary"></p>
+      </div>
+
+      <ol class="mcq-list hidden" id="mcq-list"></ol>
+
+      <div class="quiz-actions hidden" id="mcq-actions">
+        <span class="mcq-progress" id="mcq-progress">0 answered</span>
+        <button class="btn btn-primary" id="submit-btn">Submit &amp; Mark →</button>
+      </div>
+
+      <div class="feedback-actions hidden" id="after-actions">
+        <a href="sub.html" class="btn btn-secondary">Change Topic</a>
+        <button class="btn btn-primary" id="new-set-btn">New Set, Same Topic →</button>
+      </div>
+
+    </div>
+  </div>
+  <script src="mcq.js"></script>
+</body>
+</html>

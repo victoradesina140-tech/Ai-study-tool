@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedEssay — Theory from My Notes</title>
+  <link rel="stylesheet" href="ai.css">
+  <script src="theme.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="selection-screen flex-column">
+
+      <a href="index.html" class="back-btn">← Back</a>
+
+      <!-- STEP 1: Upload -->
+      <div class="step" id="step-upload">
+        <h2>Upload Your Notes</h2>
+        <p class="step-hint">
+          Upload your lecture slides or notes, or snap a photo of them with your phone.
+          We'll set a theory question from them.
+        </p>
+
+        <!-- Drop Zone -->
+        <div class="upload-zone" id="upload-zone">
+          <input type="file" id="file-input" accept=".pdf,.docx,.pptx,image/jpeg,image/png,image/webp" hidden>
+          <span class="upload-icon">📄</span>
+          <p class="upload-title">Drop your file here or click to browse</p>
+          <p class="upload-sub">PDF, DOCX, PPTX or a photo · max 4MB</p>
+          <button class="btn btn-secondary" id="browse-btn" type="button">Browse Files</button>
+        </div>
+
+        <!-- File Preview (hidden until file selected) -->
+        <div class="file-preview hidden" id="file-preview">
+          <div class="file-preview-inner">
+            <span class="file-icon" id="file-icon"></span>
+            <div class="file-info">
+              <p class="file-name" id="file-name">filename.pdf</p>
+              <p class="file-size" id="file-size">—</p>
+            </div>
+            <button class="btn-remove" id="remove-file" title="Remove file">✕</button>
+          </div>
+        </div>
+        <p class="form-error hidden" id="upload-error"></p>
+      </div>
+
+      <!-- STEP 2: Tone (hidden until format chosen) -->
+      <div class="step hidden" id="step-tone">
+        <h2>Feedback Tone</h2>
+        <div class="card-grid">
+
+          <div class="tone-card" data-tone="friendly">
+            <span class="card-icon">😊</span>
+            <h3>Friendly Mode</h3>
+            <p>Warm, encouraging feedback like a senior colleague</p>
+          </div>
+
+          <div class="tone-card" data-tone="strict">
+            <span class="card-icon">🎓</span>
+            <h3>Strict Mode</h3>
+            <p>Direct, examiner-style feedback. No sugar coating.</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- STEP 3: Marks (hidden until tone chosen) -->
+      <div class="step hidden" id="step-marks">
+        <h2>Mark Allocation</h2>
+        <p class="step-hint">The question will be sized exactly for this many marks.</p>
+        <div class="marks-selector">
+          <button class="mark-btn" data-marks="2">2 marks</button>
+          <button class="mark-btn" data-marks="4">4 marks</button>
+          <button class="mark-btn" data-marks="6">6 marks</button>
+          <button class="mark-btn" data-marks="10">10 marks</button>
+          <button class="mark-btn" data-marks="15">15 marks</button>
+          <button class="mark-btn" data-marks="20">20 marks</button>
+        </div>
+        <button class="btn btn-primary hidden" id="proceed-btn">
+          Generate Question →
+        </button>
+        <p class="form-error hidden" id="generate-error"></p>
+      </div>
+
+    </div>
+  </div>
+  <script src="upload.js"></script>
+</body>
+</html>

@@ -1,106 +1,53 @@
-// quiz.js — Question generation + answer submission
-document.addEventListener('DOMContentLoaded', async () => {
+// quiz.js — Answer a theory question that was set from the student's uploaded notes
+document.addEventListener('DOMContentLoaded', () => {
 
-  const subject = localStorage.getItem('selectedSubject') || 'Physiology'
-  const topic   = localStorage.getItem('selectedTopic')   || 'Respiratory'
-  const tone    = localStorage.getItem('selectedTone')    || 'friendly'
-  const marks   = localStorage.getItem('selectedMarks')   || '6'
-
-  document.getElementById('display-subject').textContent = cap(subject)
-  document.getElementById('display-topic').textContent   = topic
-  document.getElementById('display-tone').textContent    = tone === 'friendly' ? '😊 Friendly Mode' : '🎓 Strict Mode'
-  document.getElementById('display-marks').textContent   = `${marks} marks`
-
-  function setLoading(on) {
-    document.getElementById('loading').classList.toggle('hidden', !on)
-    document.getElementById('question-box').classList.toggle('hidden', on)
-    document.getElementById('answer-area').classList.toggle('hidden', on)
-    document.getElementById('quiz-actions').classList.toggle('hidden', on)
+  const question = localStorage.getItem('currentQuestion')
+  if (!question) {
+    window.location.href = 'upload.html'
+    return
   }
 
-  // ── Load previously asked questions for this topic ──
-  const historyKey      = `asked_${subject}_${topic}`.replace(/\s+/g, '_').toLowerCase()
-  const askedQuestions  = JSON.parse(localStorage.getItem(historyKey) || '[]')
-  const avoidSection    = askedQuestions.length > 0
-    ? `\n\nIMPORTANT: Do NOT repeat any of these previously asked questions:\n${askedQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}`
-    : ''
+  const marks = localStorage.getItem('currentMarks') || '6'
+  const tone  = localStorage.getItem('currentTone')  || 'friendly'
+  const words = localStorage.getItem('currentWords') || ''
+  const $ = id => document.getElementById(id)
 
-  try {
-    const raw = await callClaude({
-      system: `You are a medical examiner. Respond ONLY with valid JSON. No markdown, no code blocks, no explanation.`,
-      prompt: `Generate one essay or short-answer exam question on the topic "${topic}" in ${cap(subject)} worth ${marks} marks.
+  $('display-subject').textContent = '📄 My Notes'
+  $('display-topic').textContent   = (localStorage.getItem('currentTopic') || 'Uploaded File').slice(0, 30)
+  $('display-tone').textContent    = tone === 'friendly' ? '😊 Friendly Mode' : '🎓 Strict Mode'
+  $('display-marks').textContent   = `${marks} mark${marks === '1' ? '' : 's'}`
+  $('question-text').textContent   = question
+  if (words) $('answer-hint').textContent = `Aim for about ${words} words.`
 
-Return exactly this JSON structure (nothing else):
-{"question":"full question text here","keywords":["keyword1","keyword2","keyword3"]}
-
-Rules:
-- Question must be appropriate for a ${marks}-mark answer
-- Include at least ${Math.ceil(parseInt(marks) * 1.2)} specific medical keywords
-- Keywords must be precise medical terms required for full marks
-- Ask about a DIFFERENT aspect of ${topic} each time — vary between mechanisms, clinical application, anatomy, pathology, regulation${avoidSection}`,
-      maxTokens: 600
-    })
-
-    const clean = raw.replace(/```json|```/g, '').trim()
-    const { question, keywords } = JSON.parse(clean)
-
-    // ── Save question to history (keep last 20) ──
-    askedQuestions.unshift(question)
-    localStorage.setItem(historyKey, JSON.stringify(askedQuestions.slice(0, 20)))
-
-    document.getElementById('question-text').textContent = question
-    localStorage.setItem('currentQuestion', question)
-    localStorage.setItem('currentKeywords', JSON.stringify(keywords))
-    localStorage.setItem('currentMarks',    marks)
-    localStorage.setItem('currentTone',     tone)
-    localStorage.setItem('currentSubject',  subject)
-    localStorage.setItem('currentTopic',    topic)
-
-  } catch (err) {
-    console.error('Question generation failed:', err)
-    const fallback = `Write a detailed ${marks}-mark answer on "${topic}" as studied in ${cap(subject)}. Include all key mechanisms, structures, and clinical relevance.`
-    document.getElementById('question-text').textContent = fallback
-    localStorage.setItem('currentQuestion', fallback)
-    localStorage.setItem('currentKeywords', '[]')
+  const summary  = localStorage.getItem('uploadSummary')  || ''
+  const teaching = localStorage.getItem('uploadTeaching') || ''
+  if (summary || teaching) {
+    $('upload-summary').textContent  = summary
+    $('upload-teaching').textContent = teaching
+    $('upload-teaching-box').classList.remove('hidden')
   }
 
-  setLoading(false)
+  $('loading').classList.add('hidden')
+  ;['question-box', 'answer-area', 'quiz-actions'].forEach(id => $(id).classList.remove('hidden'))
 
-  const textarea  = document.getElementById('student-answer')
-  const wordCount = document.getElementById('word-count')
+  // ── Answer interactions ──
+  const textarea  = $('student-answer')
+  const wordCount = $('word-count')
+
   textarea.addEventListener('input', () => {
     const n = textarea.value.trim() ? textarea.value.trim().split(/\s+/).length : 0
     wordCount.textContent = `${n} word${n !== 1 ? 's' : ''}`
   })
 
-  document.getElementById('clear-btn').addEventListener('click', () => {
+  $('clear-btn').addEventListener('click', () => {
     textarea.value = ''
     wordCount.textContent = '0 words'
     textarea.focus()
   })
 
-  document.getElementById('submit-btn').addEventListener('click', () => {
+  $('submit-btn').addEventListener('click', () => {
     localStorage.setItem('studentAnswer', textarea.value.trim())
     window.location.href = 'feedback.html'
   })
 
 })
-
-async function callClaude({ system, prompt, maxTokens = 1000 }) {
-  const res = await fetch('/api/claude', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model:      'gemini-flash-lite-latest',
-      max_tokens: maxTokens,
-      ...(system && { system }),
-      messages: [{ role: 'user', content: prompt }]
-    })
-  })
-  if (!res.ok) throw new Error(`Server error: ${res.status}`)
-  const data = await res.json()
-  if (data.error) throw new Error(data.error.message || 'API error')
-  return data.content[0].text
-}
-
-function cap(s) { return s ? s[0].toUpperCase() + s.slice(1) : '' }

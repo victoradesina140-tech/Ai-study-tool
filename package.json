@@ -22,6 +22,11 @@
   "dependencies": {
     "cors": "^2.8.6",
     "express": "^5.2.1",
-    "node-fetch": "^2.7.0"
+    "fast-xml-parser": "^5.10.0",
+    "jszip": "^3.10.1",
+    "mammoth": "^1.12.0",
+    "node-fetch": "^2.7.0",
+    "pdf-parse": "^2.4.5",
+    "pptx-parser": "^1.1.7-beta.9"
   }
 }

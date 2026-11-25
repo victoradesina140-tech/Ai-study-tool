@@ -22,11 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
     ]
   }
 
-  const sel = { subject: null, topic: null, tone: null, marks: null }
+  const sel = { subject: null, topic: null, size: null }
   const steps = {
     topic: document.getElementById('step-topic'),
-    tone:  document.getElementById('step-tone'),
-    marks: document.getElementById('step-marks')
+    size:  document.getElementById('step-size')
   }
   const proceedBtn = document.getElementById('proceed-btn')
   const topicList  = document.getElementById('topic-list')
@@ -37,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function hideFrom(key) {
-    const order = ['topic','tone','marks']
+    const order = ['topic', 'size']
     order.slice(order.indexOf(key)).forEach(k => steps[k].classList.add('hidden'))
     proceedBtn.classList.add('hidden')
   }
@@ -48,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.subject-card').forEach(c => c.classList.remove('selected'))
       card.classList.add('selected')
       sel.subject = card.dataset.subject
-      sel.topic = sel.tone = sel.marks = null
+      sel.topic = sel.size = null
 
       topicList.innerHTML = TOPICS[sel.subject].map(t =>
         `<button class="topic-btn" data-topic="${t}">${t}</button>`
@@ -66,41 +65,28 @@ document.addEventListener('DOMContentLoaded', () => {
     topicList.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('selected'))
     btn.classList.add('selected')
     sel.topic = btn.dataset.topic
-    sel.tone = sel.marks = null
-    hideFrom('tone')
-    showStep(steps.tone)
+    sel.size = null
+    hideFrom('size')
+    showStep(steps.size)
   })
 
-  // Step 3 — Tone
-  document.querySelectorAll('.tone-card').forEach(card => {
-    card.addEventListener('click', () => {
-      document.querySelectorAll('.tone-card').forEach(c => c.classList.remove('selected'))
-      card.classList.add('selected')
-      sel.tone = card.dataset.tone
-      sel.marks = null
-      hideFrom('marks')
-      showStep(steps.marks)
-    })
-  })
-
-  // Step 4 — Marks
-  document.querySelectorAll('.mark-btn').forEach(btn => {
+  // Step 3 — Number of questions
+  document.querySelectorAll('[data-size]').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.mark-btn').forEach(b => b.classList.remove('selected'))
+      document.querySelectorAll('[data-size]').forEach(b => b.classList.remove('selected'))
       btn.classList.add('selected')
-      sel.marks = btn.dataset.marks
+      sel.size = btn.dataset.size
       proceedBtn.classList.remove('hidden')
     })
   })
 
   // Proceed
   proceedBtn.addEventListener('click', () => {
-    if (!sel.subject || !sel.topic || !sel.tone || !sel.marks) return
-    localStorage.setItem('selectedSubject', sel.subject)
-    localStorage.setItem('selectedTopic',   sel.topic)
-    localStorage.setItem('selectedTone',    sel.tone)
-    localStorage.setItem('selectedMarks',   sel.marks)
-    window.location.href = 'quiz.html'
+    if (!sel.subject || !sel.topic || !sel.size) return
+    localStorage.setItem('mcqSubject', sel.subject)
+    localStorage.setItem('mcqTopic',   sel.topic)
+    localStorage.setItem('mcqSize',    sel.size)
+    window.location.href = 'mcq.html'
   })
 
 })

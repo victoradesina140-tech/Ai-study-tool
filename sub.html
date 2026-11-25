@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MedEssay — Choose Subject</title>
+  <title>MedEssay — MCQ Practice</title>
   <link rel="stylesheet" href="ai.css">
   <script src="theme.js"></script>
 </head>
@@ -41,36 +41,18 @@
         <div class="topic-list" id="topic-list"></div>
       </div>
 
-      <!-- STEP 3: Tone -->
-      <div class="step hidden" id="step-tone">
-        <h2>Choose Your Feedback Tone</h2>
-        <div class="card-grid">
-          <div class="tone-card" data-tone="friendly">
-            <span class="card-icon">😊</span>
-            <h3>Friendly Mode</h3>
-            <p>Warm, encouraging feedback like a senior colleague</p>
-          </div>
-          <div class="tone-card" data-tone="strict">
-            <span class="card-icon">🎓</span>
-            <h3>Strict Mode</h3>
-            <p>Direct, examiner-style feedback. No sugar coating.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- STEP 4: Marks -->
-      <div class="step hidden" id="step-marks">
-        <h2>Mark Allocation</h2>
-        <p class="step-hint">How many marks is this question worth?</p>
+      <!-- STEP 3: Number of questions -->
+      <div class="step hidden" id="step-size">
+        <h2>How Many Questions?</h2>
+        <p class="step-hint">Single-best-answer MCQs, 1 mark each.</p>
         <div class="marks-selector">
-          <button class="mark-btn" data-marks="2">2 marks</button>
-          <button class="mark-btn" data-marks="4">4 marks</button>
-          <button class="mark-btn" data-marks="6">6 marks</button>
-          <button class="mark-btn" data-marks="10">10 marks</button>
-          <button class="mark-btn" data-marks="15">15 marks</button>
-          <button class="mark-btn" data-marks="20">20 marks</button>
+          <button class="mark-btn" data-size="20">20</button>
+          <button class="mark-btn" data-size="40">40</button>
+          <button class="mark-btn" data-size="60">60</button>
+          <button class="mark-btn" data-size="80">80</button>
+          <button class="mark-btn" data-size="100">100</button>
         </div>
-        <button class="btn btn-primary hidden" id="proceed-btn">Start Question →</button>
+        <button class="btn btn-primary hidden" id="proceed-btn">Start MCQs →</button>
       </div>
 
     </div>

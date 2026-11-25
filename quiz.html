@@ -12,7 +12,7 @@
     <div class="quiz-screen flex-column">
 
       <div class="quiz-topbar">
-        <a href="sub.html" class="back-btn">← Change Topic</a>
+        <a href="upload.html" class="back-btn">← Change File</a>
         <div class="quiz-meta">
           <span class="meta-tag" id="display-subject">Physiology</span>
           <span class="meta-tag" id="display-topic">Respiratory</span>
@@ -24,13 +24,25 @@
       <!-- Loading (shown first) -->
       <div class="loading" id="loading">
         <div class="spinner"></div>
-        <p>Generating your question…</p>
+        <p>Loading your question…</p>
       </div>
 
       <!-- Question (hidden until ready) -->
       <div class="question-box hidden" id="question-box">
         <p class="question-label">Question</p>
         <p id="question-text"></p>
+      </div>
+
+      <!-- Uploaded File Summary / Teaching -->
+      <div class="upload-teaching-box hidden" id="upload-teaching-box">
+        <div class="teaching-card">
+          <p class="question-label">Study Summary</p>
+          <p id="upload-summary"></p>
+        </div>
+        <div class="teaching-card">
+          <p class="question-label">Simplified Teaching</p>
+          <p id="upload-teaching"></p>
+        </div>
       </div>
 
       <!-- Answer (hidden until ready) -->
@@ -44,7 +56,7 @@
         ></textarea>
         <div class="answer-footer">
           <span id="word-count">0 words</span>
-          <span class="answer-hint">Tip: Aim for depth over length.</span>
+          <span class="answer-hint" id="answer-hint">Tip: Aim for depth over length.</span>
         </div>
       </div>
 

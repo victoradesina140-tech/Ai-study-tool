@@ -11,3 +11,6 @@ from = "/api/claude"
 to = "/.netlify/functions/api"
 status = 200
 force = true
+
+[functions."api"]
+external_node_modules = ["pdf-parse"]
