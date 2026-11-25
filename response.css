@@ -1,110 +1,75 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
+/* Feedback form page. Same palette as ai.css (dark only, this page has no theme toggle). */
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
 
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Playfair Display', Georgia, serif;
+body {
+  background: #050E1A;
+  display: flex; justify-content: center; align-items: center;
+  min-height: 100vh; padding: 2rem 16px;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: ''; position: fixed; z-index: -1;
+  right: 50%; transform: translateX(50%); bottom: 0;
+  width: min(90vw, 420px); height: 92vh;
+  background: rgba(0, 212, 255, .06);
+  -webkit-mask: url('bg-muscle.svg') no-repeat center bottom / contain;
+          mask: url('bg-muscle.svg') no-repeat center bottom / contain;
+  pointer-events: none;
 }
 
-body{
-    background-color: #080c14;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+.form-container {
+  background: #0D1B2E;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-top: 3px solid #FFD700;
+  padding: 32px 28px;
+  border-radius: 12px;
+  width: 100%; max-width: 400px;
 }
 
-.form-container{
-    background: #111827;
-    padding: 40px;
-    border-radius: 15px;
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
-    width: 320px;
-    text-align: center;
-}
+h2 { color: #EAF0F7; margin-bottom: 8px; font-size: 24px; font-weight: 700; }
+h2 span { color: #FFD700; }
 
-h2{
-    color: #E2E8F0;
-    margin-bottom: 20px;
-}
+.input-box { position: relative; margin: 18px 0; text-align: left; }
 
-.input-box{
-    position: relative;
-    margin: 20px 0;
-}
-
-input:hover{
-    background: linear-gradient(135deg, #e0b44a, #f5d07a, #c9943a);
-    box-shadow: 0 1px 5px #e0b44a;
-}
-
-.input-box input{
-    width: 100%;
-    padding: 12px 15px;
-    background: none;
-    border: none;
-    outline: none;
-    color: #fff;
-    font-size: 18px;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.5);
-    transition: 0.4s;
-    font-family: 'Outfit', sans-serif;
-}
-
-.input-box input:focus{
-    border-color: #f5d07a;
-    box-shadow: 0 5px 15px rgba(224, 180, 74, 0.2);
-}
-
-.input-box span{
-    position: absolute;
-    top: 50%;
-    left: 15px;
-    color: rgba(255, 255, 255, 0.5);
-    font: 16px;
-    pointer-events: none;
-    transition: 0.4s;
-    transform: translateY(-50%);
-}
-
-.input-box input:focus+span,
-.input-box input:not(:placeholder-shown)+span{
-    top: 5px;
-    font-size: 12px;
-    color: #8FA3C0;
-}
-
-.submit-btn{
-    background: linear-gradient(135deg, #e0b44a, #e0b44a, #c9943a);
-    border: none;
-    padding: 12px 30px;
-    border-radius: 25px;
-    color: #000;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.4s;
-    margin-top: 10px;
-    font-family: 'Outfit', sans-serif;
-}
-
-.submit-btn:hover {
-    background: linear-gradient(90deg, #e0b44a, #f5d07a, #c9943a);
-}
-
-#feedback{
-  background: none;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-radius: 10px;
-  padding: 10px;
-  color: #fff;
-  font-size: 16px;
+.input-box input, #feedback {
   width: 100%;
-  resize: vertical;
-  font-family: 'Outfit', sans-serif;
+  padding: 18px 14px 8px;
+  background: #0A1626;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 8px;
+  outline: none;
+  color: #EAF0F7;
+  font-size: 16px;
+  transition: border-color .15s ease;
+}
+.input-box input:focus, #feedback:focus { border-color: #00D4FF; }
+
+.input-box span {
+  position: absolute; top: 50%; left: 14px;
+  color: #6F8097; font-size: 15px;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transition: top .15s ease, font-size .15s ease;
+}
+.input-box input:focus + span,
+.input-box input:not(:placeholder-shown) + span {
+  top: 12px; font-size: 11px; color: #A9B6C8;
 }
 
-h2 span{
-  color: #f5d07a;
+#feedback { padding: 12px 14px; resize: vertical; min-height: 110px; }
+#feedback::placeholder { color: #6F8097; }
+
+.submit-btn {
+  width: 100%;
+  background: #FFD700;
+  border: none;
+  padding: 13px 24px;
+  border-radius: 8px;
+  color: #050E1A;
+  font-size: 15px; font-weight: 600;
+  cursor: pointer;
+  margin-top: 6px;
 }
+.submit-btn:hover { background: #F0C800; }
