@@ -25,6 +25,30 @@
         <p class="tagline">Master the written side of medicine</p>
       </div>
 
+      <div class="daily-pearl">
+        <div class="pearl-header">
+          <div>
+            <p class="section-label">✦ Daily Course Fact</p>
+            <h2 id="pearl-subject">Anatomy</h2>
+          </div>
+          <div class="pearl-nav">
+            <button class="tiny-btn" id="pearl-prev" aria-label="Previous subject">←</button>
+            <button class="tiny-btn" id="pearl-next" aria-label="Next subject">→</button>
+          </div>
+        </div>
+        <div class="pearl-card">
+          <div id="pearl-loading" class="hidden">Loading today’s fact…</div>
+          <p id="pearl-text">Loading today’s fact…</p>
+        </div>
+        <div class="pearl-share">
+          <span class="pearl-share-label">Share</span>
+          <a class="share-btn share-wa" id="share-wa" href="#" target="_blank" rel="noopener">WhatsApp</a>
+          <a class="share-btn share-x" id="share-x" href="#" target="_blank" rel="noopener">X</a>
+          <button class="share-btn" id="share-copy" type="button">Copy</button>
+          <button class="share-btn hidden" id="share-native" type="button">More…</button>
+        </div>
+      </div>
+
       <div class="subject-badges">
         <span class="badge">Anatomy</span>
         <span class="badge">Physiology</span>
@@ -53,23 +77,6 @@
         </div>
       </div>
 
-      <div class="daily-pearl">
-        <div class="pearl-header">
-          <div>
-            <p class="section-label">Daily Course Fact</p>
-            <h2 id="pearl-subject">Anatomy</h2>
-          </div>
-          <div class="pearl-nav">
-            <button class="tiny-btn" id="pearl-prev">←</button>
-            <button class="tiny-btn" id="pearl-next">→</button>
-          </div>
-        </div>
-        <div class="pearl-card">
-          <div id="pearl-loading" class="hidden">Loading today’s fact…</div>
-          <p id="pearl-text">Loading today’s fact…</p>
-        </div>
-      </div>
-
     </div>
   </div>
     <div class="privacy copyright">
@@ -77,5 +84,6 @@
     </div>
   <p class="copyright">&copy; 2026 MedEssay. All rights reserved.</p>
   <script src="ai.js"></script>
+  <script src="pearl-share.js"></script>
 </body>
 </html>

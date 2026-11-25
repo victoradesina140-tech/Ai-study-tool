@@ -13,9 +13,9 @@ body::before {
   content: ''; position: fixed; z-index: -1;
   right: 50%; transform: translateX(50%); bottom: 0;
   width: min(90vw, 420px); height: 92vh;
-  background: rgba(0, 212, 255, .06);
-  -webkit-mask: url('bg-muscle.svg') no-repeat center bottom / contain;
-          mask: url('bg-muscle.svg') no-repeat center bottom / contain;
+  background: rgba(120, 200, 235, .10);
+  -webkit-mask: url('bg-muscles.webp') no-repeat center bottom / contain;
+          mask: url('bg-muscles.webp') no-repeat center bottom / contain;
   pointer-events: none;
 }
 

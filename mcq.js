@@ -43,16 +43,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const seen  = new Set(asked.map(norm))
 
     try {
-      // First round runs all batches in parallel; later rounds top up anything missing or duplicated
-      for (let round = 0; round < 3 && questions.length < size; round++) {
+      // First round fetches all batches (3 at a time); later rounds top up anything missing or duplicated
+      for (let round = 0; round < 4 && questions.length < size; round++) {
         const missing = size - questions.length
-        const batches = []
+        if (round > 0) await new Promise(r => setTimeout(r, 2500))   // give the free AI tier a breather
+        const jobs = []
         for (let i = 0; i < Math.ceil(missing / BATCH); i++) {
           // Top-up rounds ask for a few spares in case some come back invalid or duplicated
           const n = Math.min(BATCH, missing - i * BATCH + (round > 0 ? 3 : 0))
-          batches.push(fetchBatch(n, FOCUS[(i + round * 3) % FOCUS.length], asked.slice(0, 40)))
+          jobs.push(() => fetchBatch(n, FOCUS[(i + round * 3) % FOCUS.length], asked.slice(0, 40)))
         }
-        const results = await Promise.allSettled(batches)
+        const results = await runPool(jobs, 3)
         for (const r of results) {
           if (r.status !== 'fulfilled') {
             if (r.reason && r.reason.status === 429) throw r.reason
@@ -76,6 +77,22 @@ document.addEventListener('DOMContentLoaded', () => {
       $('mcq-error-text').textContent = err.userMessage || 'We could not set your questions right now. Please check your connection and try again.'
       show('error')
     }
+  }
+
+  // Runs at most `limit` requests at once so we stay inside the AI provider's per-minute limits
+  async function runPool(jobs, limit) {
+    const results = new Array(jobs.length)
+    let next = 0
+    async function worker() {
+      while (next < jobs.length) {
+        const i = next++
+        try { results[i] = { status: 'fulfilled', value: await jobs[i]() } }
+        catch (reason) { results[i] = { status: 'rejected', reason } }
+        $('loading-text').textContent = `Setting your questions… ${Math.min(size, questions.length + results.filter(r => r && r.value).reduce((a, r) => a + r.value.length, 0))}/${size}`
+      }
+    }
+    await Promise.all(Array.from({ length: Math.min(limit, jobs.length) }, worker))
+    return results
   }
 
   async function fetchBatch(count, focus, avoid) {
