@@ -1,64 +1,34 @@
-// server.js — MedEssay Proxy Server (Gemini)
-const express = require('express')
-const cors    = require('cors')
-const fetch   = require('node-fetch')
+// server.js — Local dev server. Runs the SAME function as Netlify so local tests match the live site.
+// Put your key in a file named .env next to this one:  GEMINI_API_KEY=your-key
+const fs   = require('fs')
+const path = require('path')
 
-const app    = express()
-const PORT   = 3000
-const APIKEY = process.env.GEMINI_API_KEY
-const MODEL  = 'gemini-flash-lite-latest'
-
-// Debug: Check if API key is loaded
-if (!APIKEY) {
-  console.warn('⚠️  GEMINI_API_KEY not set in environment!')
-} else {
-  console.log('✓ API key loaded (length:', APIKEY.length, ')')
+const envFile = path.join(__dirname, '.env')
+if (fs.existsSync(envFile)) {
+  for (const line of fs.readFileSync(envFile, 'utf8').split(/\r?\n/)) {
+    const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*?)\s*$/)
+    if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, '')
+  }
+}
+if (!process.env.GEMINI_API_KEY) {
+  console.warn('⚠️  GEMINI_API_KEY is not set. Add it to a .env file (see top of server.js).')
 }
 
-app.use(cors())
-app.use(express.json())
-app.use(express.static('.'))
+const express = require('express')
+const { handler } = require('./netlify/functions/api')
 
-app.post('/api/claude', async (req, res) => {
-  try {
-    // Convert Anthropic format → Gemini format
-    const { system, messages, max_tokens } = req.body
+const app  = express()
+const PORT = process.env.PORT || 3000
 
-    // Combine system prompt + user message into Gemini contents
-    const userText = messages[messages.length - 1].content
-    const fullText = system ? `${system}\n\n${userText}` : userText
-
-    const geminiBody = {
-      contents: [{ parts: [{ text: fullText }] }],
-      generationConfig: { maxOutputTokens: max_tokens || 1500 }
-    }
-
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${APIKEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(geminiBody)
-      }
-    )
-
-    const data = await response.json()
-
-    if (!response.ok || data.error) {
-      console.error('Gemini error:', data.error || data)
-      return res.status(500).json({ error: data.error || 'Gemini API error' })
-    }
-
-    // Convert Gemini response → Anthropic format (so quiz.js/feedback.js don't need changes)
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
-    res.json({ content: [{ text }] })
-
-  } catch (err) {
-    console.error('Proxy error:', err)
-    res.status(500).json({ error: 'Proxy error', details: err.message })
-  }
+app.use(express.text({ type: '*/*', limit: '10mb' }))
+app.all('/api/claude', async (req, res) => {
+  const result = await handler({
+    httpMethod: req.method,
+    headers:    { 'x-forwarded-for': req.ip },
+    body:       typeof req.body === 'string' ? req.body : ''
+  })
+  res.status(result.statusCode).set(result.headers).send(result.body)
 })
+app.use(express.static(__dirname))
 
-app.listen(PORT, () => {
-  console.log(`\n✅ MedEssay running at http://localhost:${PORT}/ (index.html)\n`)
-})
+app.listen(PORT, () => console.log(`\n✅ MedEssay running at http://localhost:${PORT}/\n`))

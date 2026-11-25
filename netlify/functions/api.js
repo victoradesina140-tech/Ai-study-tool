@@ -4,11 +4,6 @@ const fetch = require('node-fetch')
 const APIKEY = process.env.GEMINI_API_KEY
 const MODEL  = 'gemini-flash-lite-latest'
 
-const { PDFParse } = require('pdf-parse')
-const mammoth = require('mammoth')
-const JSZip   = require('jszip')
-const { XMLParser } = require('fast-xml-parser')
-
 // ── Question rules ──
 const MCQ_SIZES       = [20, 40, 60, 80, 100]
 const MCQ_BATCH_MAX   = 10           // questions per request; the client sends several batches
@@ -23,7 +18,8 @@ const THEORY_RULES = {
   20: { maxParts: 4, words: '600-900', style: 'a full essay question with at most 4 sub-parts.' }
 }
 const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
-const MAX_BASE64  = 5.5 * 1024 * 1024  // Netlify caps request bodies at ~6MB
+const MAX_IMAGES  = 3
+const MAX_IMAGE_B64 = 1.6 * 1024 * 1024  // Netlify caps request bodies at ~6MB in total
 
 // Simple in-memory rate limiting (per function instance)
 const requestCounts = new Map()
@@ -94,58 +90,6 @@ function theoryProblem(t, marks) {
   if (!Array.isArray(t.markingPoints) || t.markingPoints.length < marks) return 'too few marking points'
   if (marks <= 2 && t.parts[0].text.length > 220) return 'question too long for 2 marks'
   return null
-}
-
-async function extractTextFromUpload(type, base64) {
-  const buffer = Buffer.from(base64, 'base64')
-
-  if (type === 'application/pdf') {
-    const parser = new PDFParse({ data: buffer })
-    try {
-      const data = await parser.getText()
-      return data.text.replace(/-- \d+ of \d+ --/g, '').trim()
-    } finally {
-      await parser.destroy().catch(() => {})
-    }
-  }
-
-  if (type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-    const result = await mammoth.extractRawText({ buffer })
-    return result.value.trim()
-  }
-
-  if (type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
-    const zip = await JSZip.loadAsync(buffer)
-    const parser = new XMLParser({ ignoreAttributes: false })
-    let text = ''
-    const slideFiles = Object.keys(zip.files).filter(path => /ppt\/slides\/slide\d+\.xml$/.test(path))
-    for (const slidePath of slideFiles) {
-      const xml = await zip.file(slidePath).async('string')
-      const slideJson = parser.parse(xml)
-      const paragraphs = slideJson['p:sld']?.['p:cSld']?.['p:spTree']?.['p:sp'] || []
-      const shapes = Array.isArray(paragraphs) ? paragraphs : [paragraphs]
-      shapes.forEach(shape => {
-        const texts = []
-        const textBody = shape['p:txBody']
-        if (textBody) {
-          const paras = Array.isArray(textBody['a:p']) ? textBody['a:p'] : [textBody['a:p']]
-          paras.forEach(p => {
-            if (!p) return
-            const runs = Array.isArray(p['a:r']) ? p['a:r'] : [p['a:r']]
-            if (p['a:r']) runs.forEach(r => { if (r?.['a:t']) texts.push(r['a:t']) })
-            if (p['a:fld']) {
-              const fldRuns = Array.isArray(p['a:fld']['a:r']) ? p['a:fld']['a:r'] : [p['a:fld']['a:r']]
-              fldRuns.forEach(r => { if (r?.['a:t']) texts.push(r['a:t']) })
-            }
-          })
-        }
-        if (texts.length) text += texts.join(' ') + '\n'
-      })
-    }
-    return text.trim()
-  }
-
-  throw new Error('Unsupported file type')
 }
 
 async function callGemini(parts, generationConfig) {
@@ -243,33 +187,19 @@ Write exactly ${count} multiple choice questions. Rules:
 
     // ── UPLOAD MODE — one theory question from the student's file, fixed marks ──
     if (mode === 'upload') {
-      const { fileData, fileType } = body
+      // The browser reads the file and sends either its text or up to 3 page photos
       const marks = parseInt(body.marks)
-      if (!fileData || !fileType || !THEORY_RULES[marks]) return reply(400, { error: 'Invalid request' })
-      if (fileData.length > MAX_BASE64) {
-        return reply(413, { error: 'File too large. Please use a file under 4MB.' })
-      }
+      if (!THEORY_RULES[marks]) return reply(400, { error: 'Invalid request' })
 
-      // Text documents are extracted here. Photos and scanned PDFs go straight to Gemini.
-      let source
-      if (IMAGE_TYPES.includes(fileType)) {
-        source = { inline_data: { mime_type: fileType, data: fileData } }
+      let sources
+      if (typeof body.fileText === 'string' && body.fileText.trim().length >= 100) {
+        sources = [{ text: `Extracted notes:\n${body.fileText.slice(0, 30000)}` }]
+      } else if (Array.isArray(body.images) && body.images.length && body.images.length <= MAX_IMAGES) {
+        const ok = body.images.every(im => im && IMAGE_TYPES.includes(im.type) && typeof im.data === 'string' && im.data.length <= MAX_IMAGE_B64)
+        if (!ok) return reply(400, { error: 'Could not read this photo. Please take it again or use JPG/PNG.' })
+        sources = body.images.map(im => ({ inline_data: { mime_type: im.type, data: im.data } }))
       } else {
-        let fileText = ''
-        try {
-          fileText = await extractTextFromUpload(fileType, fileData)
-        } catch (e) {
-          if (fileType !== 'application/pdf') {
-            return reply(400, { error: 'Could not read this file. Please upload a PDF, DOCX, PPTX or a photo of your notes.' })
-          }
-        }
-        if (fileText.length >= 100) {
-          source = { text: `Extracted notes:\n${fileText.slice(0, 30000)}` }
-        } else if (fileType === 'application/pdf') {
-          source = { inline_data: { mime_type: 'application/pdf', data: fileData } }
-        } else {
-          return reply(400, { error: 'This file has too little text to set a question from.' })
-        }
+        return reply(400, { error: 'This file has too little text to set a question from.' })
       }
 
       const rule   = THEORY_RULES[marks]
@@ -295,7 +225,7 @@ If the notes are not readable or not study material, still return the JSON with 
       let theory, problem
       for (let attempt = 0; attempt < 2; attempt++) {
         try {
-          theory  = parseJson(await callGemini([source, { text: prompt }], config))
+          theory  = parseJson(await callGemini([...sources, { text: prompt }], config))
           problem = theoryProblem(theory, marks)
         } catch (e) {
           if (e.message === 'gemini' && e.status === 400) {

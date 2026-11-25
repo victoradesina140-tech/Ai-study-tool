@@ -821,3 +821,5 @@ ul li{
 .mcq-error p { color: var(--t1); font-size: 1.5rem; margin: 0; }
 .form-error { color: var(--red); font-size: 1.4rem; margin: 1rem 0 0; }
 #question-text { white-space: pre-line; }
+
+.ai-note { font-size: 1.25rem; color: var(--t2); text-align: center; margin: .4rem 0; opacity: .85; }
